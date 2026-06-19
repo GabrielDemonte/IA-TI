@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Desafio do Gol</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+<div id="app">
+  <div id="login-screen">
+    <div class="login-header">
+      <h1>⚽ COPA DO MUNDO 🏆</h1>
+      <p>DESAFIO DO GOL • GRANDE FINAL</p>
+    </div>
+    <div class="login-body">
+      <div class="login-trophy">🏆</div>
+      <div class="login-title">Entre para jogar o desafio</div>
+      <div class="field-wrap">
+        <label>E-mail</label>
+        <input type="email" id="inp-email" placeholder="seu@email.com" />
+      </div>
+      <div class="field-wrap">
+        <label>Senha</label>
+        <input type="password" id="inp-pass" placeholder="••••••••" />
+      </div>
+      <div class="login-err" id="login-err"></div>
+      <button class="btn-login" onclick="doLogin()">ENTRAR NO ESTÁDIO →</button>
+      <div class="login-hint">Use qualquer e-mail e senha com <span>6+ caracteres</span></div>
+    </div>
+  </div>
+
+  <div id="game-screen">
+    <div id="scoreboard">
+      <h1>⚽ DESAFIO DO GOL</h1>
+      <div id="user-badge">Jogador: <span id="user-name">—</span></div>
+    </div>
+    <div id="confirm-wrap">
+      <div id="confirm-btn"><span id="lock-icon">🔒</span> CONFIRMAR</div>
+    </div>
+    <div id="unlock-hint">Para desbloquear o botão, marque um gol! ⚽</div>
+
+    <div id="field">
+      <canvas id="field-canvas"></canvas>
+
+      <div id="goal-wrap">
+        <div id="goal-back"></div>
+        <div id="goal-frame"></div>
+
+        <!-- Goleiro SVG: pés em y=120 (bottom da viewBox) -->
+        <svg id="gk-svg" viewBox="0 0 60 120" xmlns="http://www.w3.org/2000/svg">
+          <defs>
+            <radialGradient id="skinG" cx="45%" cy="35%" r="55%">
+              <stop offset="0%" stop-color="#f5c5a3"/>
+              <stop offset="100%" stop-color="#d4956a"/>
+            </radialGradient>
+            <radialGradient id="shirtG" cx="30%" cy="25%" r="70%">
+              <stop offset="0%" stop-color="#ff6b35"/>
+              <stop offset="100%" stop-color="#b03020"/>
+            </radialGradient>
+            <radialGradient id="shortG" cx="50%" cy="30%" r="60%">
+              <stop offset="0%" stop-color="#2c3e6b"/>
+              <stop offset="100%" stop-color="#1a2340"/>
+            </radialGradient>
+            <radialGradient id="gloveG" cx="30%" cy="25%" r="70%">
+              <stop offset="0%" stop-color="#ffe066"/>
+              <stop offset="100%" stop-color="#b89000"/>
+            </radialGradient>
+            <radialGradient id="shoeG" cx="30%" cy="30%" r="60%">
+              <stop offset="0%" stop-color="#333"/>
+              <stop offset="100%" stop-color="#111"/>
+            </radialGradient>
+          </defs>
+
+          <g id="gk-body-group">
+            <!-- Cabeça -->
+            <ellipse cx="30" cy="11" rx="11" ry="12" fill="url(#skinG)"/>
+            <!-- Cabelo -->
+            <ellipse cx="30" cy="4" rx="11" ry="6" fill="#2a1a0a"/>
+            <ellipse cx="21" cy="9" rx="4" ry="6" fill="#2a1a0a"/>
+            <ellipse cx="39" cy="9" rx="4" ry="6" fill="#2a1a0a"/>
+            <!-- Sobrancelhas -->
+            <path d="M23 10 Q27 8 31 10" stroke="#2a1a0a" stroke-width="1.5" fill="none" stroke-linecap="round"/>
+            <path d="M29 10 Q33 8 37 10" stroke="#2a1a0a" stroke-width="1.5" fill="none" stroke-linecap="round"/>
+            <!-- Olhos -->
+            <ellipse cx="26" cy="13" rx="2.5" ry="2" fill="#2c1a0e"/>
+            <ellipse cx="34" cy="13" rx="2.5" ry="2" fill="#2c1a0e"/>
+            <circle cx="26.8" cy="12.5" r="0.8" fill="white"/>
+            <circle cx="34.8" cy="12.5" r="0.8" fill="white"/>
+            <!-- Nariz -->
+            <path d="M30 15 L28 19 L32 19" stroke="#c07050" stroke-width="1" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+            <!-- Boca fechada - linha reta -->
+            <line x1="27" y1="21" x2="33" y2="21" stroke="#a06040" stroke-width="1.5" stroke-linecap="round"/>
+            <!-- Orelhas -->
+            <ellipse cx="19" cy="13" rx="2.5" ry="3" fill="#d4956a"/>
+            <ellipse cx="41" cy="13" rx="2.5" ry="3" fill="#d4956a"/>
+
+            <!-- Pescoço -->
+            <rect x="27" y="22" width="6" height="5" fill="#d4956a"/>
+
+            <!-- Camisa -->
+            <path d="M15 28 Q30 24 45 28 L43 62 L17 62 Z" fill="url(#shirtG)"/>
+            <!-- Detalhe camisa -->
+            <line x1="30" y1="27" x2="30" y2="62" stroke="rgba(255,255,255,0.25)" stroke-width="1"/>
+            <rect x="22" y="30" width="9" height="3" rx="1" fill="rgba(255,255,255,0.2)"/>
+            <text x="30" y="50" text-anchor="middle" font-size="8" font-weight="bold" fill="white" font-family="sans-serif">1</text>
+
+            <!-- Braço esquerdo -->
+            <path d="M15 28 L8 46" stroke="#d4956a" stroke-width="7" stroke-linecap="round"/>
+            <!-- Luva esquerda -->
+            <ellipse cx="7" cy="49" rx="7" ry="5" fill="url(#gloveG)" transform="rotate(-15 7 49)"/>
+            <line x1="3" y1="45" x2="5" y2="52" stroke="rgba(0,0,0,0.25)" stroke-width="1.5" stroke-linecap="round"/>
+            <line x1="6" y1="44" x2="7" y2="53" stroke="rgba(0,0,0,0.25)" stroke-width="1.5" stroke-linecap="round"/>
+            <line x1="9" y1="44" x2="9" y2="53" stroke="rgba(0,0,0,0.25)" stroke-width="1.5" stroke-linecap="round"/>
+            <line x1="12" y1="45" x2="11" y2="52" stroke="rgba(0,0,0,0.25)" stroke-width="1.5" stroke-linecap="round"/>
+
+            <!-- Braço direito -->
+            <path d="M45 28 L52 46" stroke="#d4956a" stroke-width="7" stroke-linecap="round"/>
+            <!-- Luva direita -->
+            <ellipse cx="53" cy="49" rx="7" ry="5" fill="url(#gloveG)" transform="rotate(15 53 49)"/>
+            <line x1="49" y1="45" x2="50" y2="52" stroke="rgba(0,0,0,0.25)" stroke-width="1.5" stroke-linecap="round"/>
+            <line x1="52" y1="44" x2="53" y2="53" stroke="rgba(0,0,0,0.25)" stroke-width="1.5" stroke-linecap="round"/>
+            <line x1="55" y1="44" x2="55" y2="53" stroke="rgba(0,0,0,0.25)" stroke-width="1.5" stroke-linecap="round"/>
+            <line x1="57" y1="45" x2="56" y2="52" stroke="rgba(0,0,0,0.25)" stroke-width="1.5" stroke-linecap="round"/>
+
+            <!-- Shorts -->
+            <path d="M17 62 L15 84 L27 84 L30 72 L33 84 L45 84 L43 62 Z" fill="url(#shortG)"/>
+            <line x1="30" y1="62" x2="30" y2="84" stroke="rgba(255,255,255,0.12)" stroke-width="1"/>
+
+            <!-- Meias - perna esquerda -->
+            <rect x="16" y="84" width="10" height="20" rx="2" fill="#d4956a"/>
+            <rect x="16" y="84" width="10" height="14" rx="2" fill="#cc3333"/>
+            <line x1="16" y1="90" x2="26" y2="90" stroke="white" stroke-width="1"/>
+            <line x1="16" y1="93" x2="26" y2="93" stroke="white" stroke-width="1"/>
+
+            <!-- Meias - perna direita -->
+            <rect x="34" y="84" width="10" height="20" rx="2" fill="#d4956a"/>
+            <rect x="34" y="84" width="10" height="14" rx="2" fill="#cc3333"/>
+            <line x1="34" y1="90" x2="44" y2="90" stroke="white" stroke-width="1"/>
+            <line x1="34" y1="93" x2="44" y2="93" stroke="white" stroke-width="1"/>
+
+            <!-- Chuteira esquerda - na base (y=120) -->
+            <ellipse cx="21" cy="116" rx="9" ry="5" fill="url(#shoeG)"/>
+            <ellipse cx="19" cy="114" rx="8" ry="4" fill="#222"/>
+            <line x1="12" y1="114" x2="28" y2="114" stroke="white" stroke-width="1" stroke-linecap="round"/>
+
+            <!-- Chuteira direita - na base (y=120) -->
+            <ellipse cx="39" cy="116" rx="9" ry="5" fill="url(#shoeG)"/>
+            <ellipse cx="37" cy="114" rx="8" ry="4" fill="#222"/>
+            <line x1="30" y1="114" x2="46" y2="114" stroke="white" stroke-width="1" stroke-linecap="round"/>
+          </g>
+        </svg>
+      </div>
+
+      <div id="penalty-spot"></div>
+      <div id="ball-wrap">
+        <svg viewBox="0 0 42 42" width="42" height="42" xmlns="http://www.w3.org/2000/svg">
+          <defs>
+            <radialGradient id="ballG" cx="35%" cy="30%" r="65%">
+              <stop offset="0%" stop-color="#ffffff"/>
+              <stop offset="100%" stop-color="#cccccc"/>
+            </radialGradient>
+          </defs>
+          <circle cx="21" cy="21" r="20" fill="url(#ballG)" stroke="#999" stroke-width="0.5"/>
+          <path d="M21 3 L25 11 L19 15 L14 11 Z" fill="#1a1a1a"/>
+          <path d="M35 13 L31 20 L25 18 L25 11 Z" fill="#1a1a1a"/>
+          <path d="M37 28 L29 30 L25 24 L31 20 Z" fill="#1a1a1a"/>
+          <path d="M21 39 L17 31 L21 26 L25 31 Z" fill="#1a1a1a"/>
+          <path d="M5 28 L13 30 L17 24 L11 20 Z" fill="#1a1a1a"/>
+          <path d="M7 13 L11 20 L17 18 L17 11 Z" fill="#1a1a1a"/>
+          <ellipse cx="14" cy="14" rx="6" ry="4" fill="rgba(255,255,255,0.4)" transform="rotate(-30 14 14)"/>
+        </svg>
+      </div>
+    </div>
+
+    <div id="msg-area">🎯 Escolha a direção do chute!</div>
+    <div id="controls">
+      <button class="shoot-btn" onclick="shoot('left')">← Esquerda</button>
+      <button class="shoot-btn" onclick="shoot('center')">⬆ Centro</button>
+      <button class="shoot-btn" onclick="shoot('right')">Direita →</button>
+    </div>
+    <div id="bottom-bar">
+      <span style="color:#aaa;font-size:12px;">Goleiro em movimento • Escolha o momento certo!</span>
+    </div>
+  </div>
+</div>
+<script src="script.js"></script>
+</body>
+</html>
